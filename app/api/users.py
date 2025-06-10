@@ -8,6 +8,8 @@ from app.services.user_service import (
     create_user_service,
     delete_user_service,
 )
+from app.services.auth_service import login_service
+from app.db.auth import Login, Token
 
 router = APIRouter()
 
@@ -45,3 +47,20 @@ async def delete_user(
     db: AsyncSession = Depends(get_db),
 ):
     return await delete_user_service(user_id, db)
+
+
+@router.post(
+    "/login",
+    response_model=Token,
+    status_code=status.HTTP_200_OK,
+    summary="Iniciar sesión y obtener token",
+)
+async def login(
+    credentials: Login,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Verifica email+password, y devuelve un JWT válido por 60 minutos.
+    """
+    token = await login_service(credentials, db)
+    return {"access_token": token}
