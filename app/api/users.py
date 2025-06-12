@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -59,8 +59,14 @@ async def login(
     credentials: Login,
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Verifica email+password, y devuelve un JWT válido por 60 minutos.
-    """
+    # credentials ya validado por Pydantic
     token = await login_service(credentials, db)
+
+    # Si login_service no encuentra usuario o contraseña falla:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email o contraseña inválidos"
+        )
+
     return {"access_token": token}
