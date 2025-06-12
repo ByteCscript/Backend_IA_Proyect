@@ -6,7 +6,7 @@ from app.db.session import get_db
 from app.db.schemas_general import Productivity, Sale, Report
 from app.db.models.data_schemas import ProductivityOut, SaleOut, ReportOut
 
-router = APIRouter(prefix="/data", tags=["data"])
+router = APIRouter()
 
 @router.get(
     "/productivity",
